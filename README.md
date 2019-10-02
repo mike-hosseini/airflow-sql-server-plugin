@@ -1,2 +1,5 @@
-# airflow-sql-server-plugin
-Apache Airflow plugin for SQL Server
+# Apache Airflow plugin for SQL Server
+
+Kerberized SQL Server Plugin for Apache Airflow.
+
+More instructions to be added...
