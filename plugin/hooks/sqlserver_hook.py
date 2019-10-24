@@ -18,15 +18,24 @@ class SqlServerHook(DbApiHook):
     def get_uri(self):
         conn = self.get_connection(getattr(self, self.conn_name_attr))
 
-        formatted_connection_string = "DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection={trusted_connection}".format(
+        trusted_connection = conn.extra_dejson.get("trusted_connection", False)
+
+        conn_string = "DRIVER={driver};SERVER={server};DATABASE={database};".format(
             driver=self.driver,
             server=conn.host,
             database=self.schema or conn.schema,
-            trusted_connection="yes",
+        )
+
+        conn_string += (
+            "Trusted_Connection=yes"
+            if trusted_connection
+            else "UID={username};PWD={password}".format(
+                username=conn.login, password=conn.password or ""
+            )
         )
 
         return "mssql+pyodbc:///?odbc_connect={parameters}".format(
-            parameters=urllib.parse.quote_plus(formatted_connection_string)
+            parameters=urllib.parse.quote_plus(conn_string)
         )
 
     def get_sqlalchemy_engine(self, engine_kwargs=dict(fast_executemany=True)):
